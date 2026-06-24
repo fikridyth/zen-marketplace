@@ -12,18 +12,77 @@ export interface User {
   updated_at: string;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  icon: string | null;
+  products_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ProductImage {
+  id: number;
+  product_id: number;
+  image_url: string;
+  is_primary: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Product {
   id: number;
   user_id: number;
+  category_id: number | null;
   name: string;
   slug: string;
   description: string | null;
   price: string | number;
+  discount: number;
   stock: number;
   image_url: string | null;
   created_at: string;
   updated_at: string;
   user?: Pick<User, "id" | "name">;
+  category?: Pick<Category, "id" | "name" | "slug" | "icon"> | null;
+  images?: ProductImage[];
+  primary_image?: ProductImage | null;
+  reviews_count?: number;
+  reviews_avg_rating?: string | number | null;
+}
+
+export interface Review {
+  id: number;
+  user_id: number;
+  product_id: number;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  updated_at: string;
+  user?: Pick<User, "id" | "name">;
+  product?: Product;
+}
+
+export interface Wishlist {
+  id: number;
+  user_id: number;
+  product_id: number;
+  created_at: string;
+  updated_at: string;
+  product?: Product;
+}
+
+export interface HeroBanner {
+  id: number;
+  image_url: string;
+  link: string | null;
+  title: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CartItem {

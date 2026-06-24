@@ -109,6 +109,7 @@ export default function AdminDashboardPage() {
                 <TableHeader className="bg-zinc-900">
                   <TableRow className="border-zinc-800 hover:bg-transparent">
                     <TableHead className="text-zinc-400">Name</TableHead>
+                    <TableHead className="text-zinc-400">Category</TableHead>
                     <TableHead className="text-zinc-400">Price</TableHead>
                     <TableHead className="text-zinc-400">Stock</TableHead>
                     <TableHead className="text-zinc-400 text-right">Actions</TableHead>
@@ -119,6 +120,13 @@ export default function AdminDashboardPage() {
                     <TableRow key={product.id} className="border-zinc-800 hover:bg-zinc-800/50">
                       <TableCell className="font-medium text-zinc-200">
                         {product.name}
+                      </TableCell>
+                      <TableCell className="text-zinc-400 text-sm">
+                        {product.category ? (
+                          <span>{product.category.icon} {product.category.name}</span>
+                        ) : (
+                          <span className="text-zinc-600">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-zinc-300">${Number(product.price).toFixed(2)}</TableCell>
                       <TableCell>

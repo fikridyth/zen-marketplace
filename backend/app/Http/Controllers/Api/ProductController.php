@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,12 +16,31 @@ class ProductController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Product::with('user:id,name');
+        $query = Product::with('user:id,name', 'category:id,name,slug,icon', 'primaryImage')
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews');
 
         // Optional search
         if ($request->has('search')) {
             $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Optional category filter
+        if ($request->has('category')) {
+            $category = Category::where('slug', $request->input('category'))->first();
+            if ($category) {
+                $query->where('category_id', $category->id);
+            }
+        }
+
+        // Flash sale filter (highest discount first, limit to 4)
+        if ($request->has('flash_sale')) {
+            $products = $query->orderByDesc('discount')->take(4)->get();
+            return response()->json(['data' => $products]);
         }
 
         $products = $query->latest()->paginate(12);
@@ -33,7 +53,11 @@ class ProductController extends Controller
      */
     public function show(string $slug): JsonResponse
     {
-        $product = Product::with('user:id,name')->where('slug', $slug)->firstOrFail();
+        $product = Product::with('user:id,name', 'category:id,name,slug,icon', 'images')
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->where('slug', $slug)
+            ->firstOrFail();
 
         return response()->json([
             'product' => $product,
@@ -51,6 +75,7 @@ class ProductController extends Controller
             'price'       => ['required', 'numeric', 'min:0'],
             'stock'       => ['required', 'integer', 'min:0'],
             'image_url'   => ['nullable', 'string', 'url', 'max:2048'],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
         ]);
 
         $validated['user_id'] = $request->user()->id;
@@ -86,6 +111,7 @@ class ProductController extends Controller
             'price'       => ['sometimes', 'numeric', 'min:0'],
             'stock'       => ['sometimes', 'integer', 'min:0'],
             'image_url'   => ['nullable', 'string', 'url', 'max:2048'],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
         ]);
 
         // Regenerate slug if name changed

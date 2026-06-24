@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\HeroBannerController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +28,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{slug}', [ProductController::class, 'show']);
 
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{slug}', [CategoryController::class, 'show']);
+
+Route::get('/hero-banners', [HeroBannerController::class, 'index']);
+
 // ──────────────────────────────────────────────
 // Authenticated routes (any role)
 // ──────────────────────────────────────────────
@@ -42,6 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/cart', [CartController::class, 'store']);
         Route::put('/cart/{id}', [CartController::class, 'update']);
         Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+
+        // Wishlist & Reviews (Buyer)
+        Route::get('/wishlists', [\App\Http\Controllers\WishlistController::class, 'index']);
+        Route::post('/wishlists', [\App\Http\Controllers\WishlistController::class, 'store']);
+        Route::delete('/wishlists/{productId}', [\App\Http\Controllers\WishlistController::class, 'destroy']);
+        
+        Route::post('/products/{slug}/reviews', [\App\Http\Controllers\ReviewController::class, 'store']);
     });
 
     // ──────────────────────────────────────────
@@ -54,3 +68,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     });
 });
+
+Route::get('/products/{slug}/reviews', [\App\Http\Controllers\ReviewController::class, 'index']);
