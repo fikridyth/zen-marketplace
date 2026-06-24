@@ -37,9 +37,12 @@ class ProductController extends Controller
             }
         }
 
-        // Flash sale filter (highest discount first, limit to 4)
+        // Flash sale filter (highest discount first, discount > 50, limit to 10)
         if ($request->has('flash_sale')) {
-            $products = $query->orderByDesc('discount')->take(4)->get();
+            $products = $query->where('discount', '>', 50)
+                              ->orderByDesc('discount')
+                              ->take(10)
+                              ->get();
             return response()->json(['data' => $products]);
         }
 
@@ -76,6 +79,10 @@ class ProductController extends Controller
             'stock'       => ['required', 'integer', 'min:0'],
             'image_url'   => ['nullable', 'string', 'url', 'max:2048'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'images'      => ['nullable', 'array'],
+            'images.*'    => ['file', 'image', 'max:2048'],
+            'image_urls'  => ['nullable', 'array'],
+            'image_urls.*'=> ['url', 'max:2048'],
         ]);
 
         $validated['user_id'] = $request->user()->id;
@@ -90,9 +97,35 @@ class ProductController extends Controller
 
         $product = Product::create($validated);
 
+        // Handle uploaded file images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('products', 'public');
+                $product->images()->create([
+                    'image_url' => asset('storage/' . $path),
+                    'is_primary' => false,
+                ]);
+            }
+        }
+
+        // Handle string URL images
+        if ($request->has('image_urls')) {
+            foreach ($request->input('image_urls') as $url) {
+                $product->images()->create([
+                    'image_url' => $url,
+                    'is_primary' => false,
+                ]);
+            }
+        }
+
+        // Ensure there is a primary image if images were added
+        if ($product->images()->count() > 0 && !$product->images()->where('is_primary', true)->exists()) {
+            $product->images()->first()->update(['is_primary' => true]);
+        }
+
         return response()->json([
             'message' => 'Product created successfully.',
-            'product' => $product,
+            'product' => $product->load('images'),
         ], 201);
     }
 
@@ -112,6 +145,10 @@ class ProductController extends Controller
             'stock'       => ['sometimes', 'integer', 'min:0'],
             'image_url'   => ['nullable', 'string', 'url', 'max:2048'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'images'      => ['nullable', 'array'],
+            'images.*'    => ['file', 'image', 'max:2048'],
+            'image_urls'  => ['nullable', 'array'],
+            'image_urls.*'=> ['url', 'max:2048'],
         ]);
 
         // Regenerate slug if name changed
@@ -127,9 +164,35 @@ class ProductController extends Controller
 
         $product->update($validated);
 
+        // Handle uploaded file images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('products', 'public');
+                $product->images()->create([
+                    'image_url' => asset('storage/' . $path),
+                    'is_primary' => false,
+                ]);
+            }
+        }
+
+        // Handle string URL images
+        if ($request->has('image_urls')) {
+            foreach ($request->input('image_urls') as $url) {
+                $product->images()->create([
+                    'image_url' => $url,
+                    'is_primary' => false,
+                ]);
+            }
+        }
+
+        // Ensure primary image exists if images exist
+        if ($product->images()->count() > 0 && !$product->images()->where('is_primary', true)->exists()) {
+            $product->images()->first()->update(['is_primary' => true]);
+        }
+
         return response()->json([
             'message' => 'Product updated successfully.',
-            'product' => $product->fresh(),
+            'product' => $product->fresh('images'),
         ]);
     }
 

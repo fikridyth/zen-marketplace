@@ -148,7 +148,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </h3>
           </div>
 
-          <div className="flex items-center justify-between mt-1 sm:mt-2 pt-1 sm:pt-2 border-t border-zinc-200 dark:border-zinc-800/50">
+          <div className="flex items-center justify-between mt-auto pt-1 sm:pt-2 border-t border-zinc-200 dark:border-zinc-800/50">
             <div className="flex flex-col">
               {product.discount > 0 && (
                 <span className="text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-500 line-through">

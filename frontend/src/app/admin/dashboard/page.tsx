@@ -51,31 +51,31 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
-          <p className="text-zinc-400 mt-1">Manage your store and products</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Dashboard</h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm sm:text-base">Manage your store and products</p>
         </div>
-        <Link href="/admin/products/new">
+        <Link href="/admin/products">
           <Button className="bg-indigo-600 hover:bg-indigo-500 text-white">
             <span className="mr-2">➕</span> Add Product
           </Button>
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-zinc-900/50 border-zinc-800">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        <Card className="bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Total Products</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total Products</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{products.length}</div>
+            <div className="text-2xl font-bold text-zinc-900 dark:text-white">{products.length}</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-zinc-900/50 border-zinc-800">
+        <Card className="bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Low Stock Items</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Low Stock Items</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-400">
@@ -84,9 +84,9 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-zinc-900/50 border-zinc-800">
+        <Card className="bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Out of Stock</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Out of Stock</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-zinc-500">
@@ -96,39 +96,39 @@ export default function AdminDashboardPage() {
         </Card>
       </div>
 
-      <Card className="bg-zinc-900/50 border-zinc-800">
+      <Card className="bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800">
         <CardHeader>
-          <CardTitle className="text-white">Recent Products</CardTitle>
+          <CardTitle className="text-zinc-900 dark:text-white">Recent Products</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-zinc-400">Loading products...</div>
+            <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">Loading products...</div>
           ) : products.length > 0 ? (
-            <div className="rounded-md border border-zinc-800">
-              <Table>
-                <TableHeader className="bg-zinc-900">
-                  <TableRow className="border-zinc-800 hover:bg-transparent">
-                    <TableHead className="text-zinc-400">Name</TableHead>
-                    <TableHead className="text-zinc-400">Category</TableHead>
-                    <TableHead className="text-zinc-400">Price</TableHead>
-                    <TableHead className="text-zinc-400">Stock</TableHead>
-                    <TableHead className="text-zinc-400 text-right">Actions</TableHead>
+            <div className="rounded-md border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
+              <Table className="min-w-[600px]">
+                <TableHeader className="bg-zinc-50 dark:bg-zinc-900">
+                  <TableRow className="border-zinc-200 dark:border-zinc-800 hover:bg-transparent">
+                    <TableHead className="text-zinc-500 dark:text-zinc-400">Name</TableHead>
+                    <TableHead className="text-zinc-500 dark:text-zinc-400">Category</TableHead>
+                    <TableHead className="text-zinc-500 dark:text-zinc-400">Price</TableHead>
+                    <TableHead className="text-zinc-500 dark:text-zinc-400">Stock</TableHead>
+                    <TableHead className="text-zinc-500 dark:text-zinc-400 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products.map((product) => (
-                    <TableRow key={product.id} className="border-zinc-800 hover:bg-zinc-800/50">
-                      <TableCell className="font-medium text-zinc-200">
+                  {products.slice(0, 5).map((product) => (
+                    <TableRow key={product.id} className="border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+                      <TableCell className="font-medium text-zinc-900 dark:text-zinc-200">
                         {product.name}
                       </TableCell>
-                      <TableCell className="text-zinc-400 text-sm">
+                      <TableCell className="text-zinc-500 dark:text-zinc-400 text-sm">
                         {product.category ? (
                           <span>{product.category.icon} {product.category.name}</span>
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-zinc-400 dark:text-zinc-600">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-zinc-300">${Number(product.price).toFixed(2)}</TableCell>
+                      <TableCell className="text-zinc-700 dark:text-zinc-300">${Number(product.price).toFixed(2)}</TableCell>
                       <TableCell>
                         {product.stock > 5 ? (
                           <Badge variant="outline" className="border-green-500/30 text-green-400">
@@ -167,11 +167,11 @@ export default function AdminDashboardPage() {
               </Table>
             </div>
           ) : (
-            <div className="text-center py-12 border-2 border-dashed border-zinc-800 rounded-lg">
-              <h3 className="text-lg font-medium text-white mb-2">No products yet</h3>
-              <p className="text-zinc-400 mb-4">Start selling by adding your first product.</p>
-              <Link href="/admin/products/new">
-                <Button className="bg-zinc-800 hover:bg-zinc-700 text-white">
+            <div className="text-center py-12 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-lg">
+              <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">No products yet</h3>
+              <p className="text-zinc-500 dark:text-zinc-400 mb-4">Start selling by adding your first product.</p>
+              <Link href="/admin/products">
+                <Button className="bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-700 text-white">
                   Create Product
                 </Button>
               </Link>

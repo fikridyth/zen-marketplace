@@ -16,6 +16,47 @@ export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const flashSaleRef = useRef<HTMLDivElement | null>(null);
+  const arrivalsRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollCarousel = (ref: React.RefObject<HTMLDivElement | null>, direction: "left" | "right", isLatestArrival: boolean = false) => {
+    if (ref.current) {
+      if (isLatestArrival) {
+        const child = ref.current.firstElementChild as HTMLElement;
+        if (child) {
+          const gap = parseInt(window.getComputedStyle(ref.current).gap) || 24;
+          const scrollAmount = (child.offsetWidth + gap) * 4;
+          ref.current.scrollBy({ left: direction === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
+        }
+      } else {
+        const scrollAmount = ref.current.clientWidth;
+        ref.current.scrollBy({ left: direction === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
+      }
+    }
+  };
+
+  // Flash Sale auto-scroll
+  useEffect(() => {
+    const el = flashSaleRef.current;
+    if (!el || flashSaleProducts.length === 0) return;
+
+    let scrollInterval = setInterval(() => {
+      if (!el.firstElementChild) return;
+      const child = el.firstElementChild as HTMLElement;
+      const gap = parseInt(window.getComputedStyle(el).gap) || 24;
+      const scrollStep = child.offsetWidth + gap;
+
+      el.scrollBy({ left: scrollStep, behavior: "smooth" });
+
+      if (el.scrollLeft >= (scrollStep * flashSaleProducts.length)) {
+        setTimeout(() => {
+          el.scrollTo({ left: el.scrollLeft - (scrollStep * flashSaleProducts.length), behavior: "auto" });
+        }, 500);
+      }
+    }, 3000);
+
+    return () => clearInterval(scrollInterval);
+  }, [flashSaleProducts]);
 
   const apiUrl =
     process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
@@ -92,7 +133,7 @@ export default function LandingPage() {
     }).format(numPrice);
   };
 
-  const latestArrivals = products.slice(0, 4);
+  const latestArrivals = products.slice(0, 12);
 
   if (isLoading) {
     return (
@@ -291,10 +332,29 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-              {flashSaleProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="relative group/carousel">
+              <div 
+                ref={flashSaleRef}
+                className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
+              >
+                {[...flashSaleProducts, ...flashSaleProducts].map((product, index) => (
+                  <div key={`${product.id}-${index}`} className="min-w-[75vw] sm:min-w-[45vw] md:min-w-[30vw] lg:min-w-[22vw] snap-start shrink-0 h-full">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => scrollCarousel(flashSaleRef, "left")}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 sm:-translate-x-5 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-all hover:scale-110 opacity-0 group-hover/carousel:opacity-100 hidden sm:flex disabled:opacity-0"
+              >
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+              <button
+                onClick={() => scrollCarousel(flashSaleRef, "right")}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 sm:translate-x-5 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-all hover:scale-110 opacity-0 group-hover/carousel:opacity-100 hidden sm:flex disabled:opacity-0"
+              >
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
             </div>
           </section>
         )}
@@ -320,10 +380,29 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-              {latestArrivals.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="relative group/carousel">
+              <div 
+                ref={arrivalsRef}
+                className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
+              >
+                {latestArrivals.map((product) => (
+                  <div key={product.id} className="min-w-[75vw] sm:min-w-[45vw] md:min-w-[30vw] lg:min-w-[22vw] snap-start shrink-0 h-full">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => scrollCarousel(arrivalsRef, "left", true)}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 sm:-translate-x-5 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-all hover:scale-110 opacity-0 group-hover/carousel:opacity-100 hidden sm:flex disabled:opacity-0"
+              >
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+              <button
+                onClick={() => scrollCarousel(arrivalsRef, "right", true)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 sm:translate-x-5 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-all hover:scale-110 opacity-0 group-hover/carousel:opacity-100 hidden sm:flex disabled:opacity-0"
+              >
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
             </div>
           </section>
         )}

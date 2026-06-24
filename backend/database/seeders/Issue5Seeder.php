@@ -34,7 +34,6 @@ class Issue5Seeder extends Seeder
             'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80',
             'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80',
             'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80',
-            'https://images.unsplash.com/photo-1572635196237-14b3f281501f?w=800&q=80',
         ];
 
         foreach ($products as $index => $product) {

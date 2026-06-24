@@ -54,3 +54,14 @@
 - [x] Ratings & Reviews implementation
 - [x] Flash Sale Section (Home Page) 
   - [x] Note: only 4 products with highest discount value will show here
+
+# Issue 6
+
+- [x] button remove on wishlist and add icon trash in red, and update count wishlist
+- [x] make 5 of item discount more than 50, then make flash sale show max 10 items with highest discount value & discount > 50, then make carousel
+- [x] make latest arrival show 12 items, show only 4 first and button right and left for slider to next or previous 4 items
+- [x] move to seller role, fix admin dashboard when light & dark mode, responsive for mobile, and show only 5 products in latest product on dashboard
+- [x] on seller role, add my product page to see all product with tanstack datatable, with crud, image preview, preview image, select multiple image, then image upload handle multiple image in backend, add more field to update, also validate stock and price, upload image from local and from url, make ui add new product better and responsive (modal or sheet)
+- [x] make flash sale and latest arrival card image align each other
+- [x] make flash sale auto scroll to right and show same image when reach end
+- [x] make latest arrival press button per 4 items

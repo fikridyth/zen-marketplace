@@ -5,12 +5,12 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { ProductCard } from "@/components/product-card";
 import { useRouter } from "next/navigation";
-import { Heart, Package, Loader2, LogOut } from "lucide-react";
+import { Heart, Package, Loader2, LogOut, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
   const { user, isAuthenticated, logout } = useAuthStore();
-  const { wishlists, fetchWishlists, isLoading } = useWishlistStore();
+  const { wishlists, fetchWishlists, isLoading, removeFromWishlist } = useWishlistStore();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"wishlist" | "orders">("wishlist");
 
@@ -98,7 +98,18 @@ export default function ProfilePage() {
               ) : wishlists.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                   {wishlists.map((item) => (
-                    item.product && <ProductCard key={item.id} product={item.product} />
+                    item.product && (
+                      <div key={item.id} className="relative group">
+                        <ProductCard product={item.product} />
+                        <button
+                          onClick={() => removeFromWishlist(item.product_id)}
+                          className="absolute top-2 right-2 z-10 p-2 bg-white/80 dark:bg-black/50 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 text-red-500 rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm"
+                          aria-label="Remove from wishlist"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )
                   ))}
                 </div>
               ) : (
